@@ -1,0 +1,27 @@
+# C gitignore
+
+# C
+#-	Object file
+#-	Compiled header
+#-	Executables
+#-	Core dumps
+
+*.o
+
+*.gch
+
+*.out
+!tests/students-tests/*.out
+*.exe
+
+core
+
+# Project specific
+#-	Final executable
+#-	Test results
+#-	Final analysis in pdf
+#-	CSV analysis of results
+asa.out
+tests/students-tests/*.gen
+docs/relatorio-al040.pdf
+*.csv
