@@ -3,8 +3,7 @@
 
 
 typedef struct graph {
-  int M;
-  int N;
+  int M, N;
   int **whiteCapacity;
   int **blackCapacity;
   int **verticalEdges;
@@ -13,8 +12,31 @@ typedef struct graph {
   int **horizontalFlow;
   int **whiteFlow;
   int **blackFlow;
-
 } Graph;
+
+int lines(Graph g) {return g->M;}
+
+int colums(Graph g) {return g->N;}
+
+int **whiteCapacity(Graph g) {return g->whiteCapacity;}
+
+int **blackCapacity(Graph g) {return g->blackCapacity;}
+
+int **verticalEdges(Graph g) {return g->verticalEdges;}
+
+int **horizontalEdges(Graph g) {return g->horizontalEdges;}
+
+int **verticalFlow(Graph g) {return g->verticalFlow;}
+
+int **horizontalFlow(Graph g) {return g->horizontalFlow;}
+
+int **whiteFlow(Graph g) {return g->whiteFlow;}
+
+int **blackFlow(Graph g) {return g->blackFlow;
+
+}
+
+
 
 /* returns a lxc matrix */
 int **buildMatrix(int l, int c) {
