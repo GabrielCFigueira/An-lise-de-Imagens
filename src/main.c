@@ -16,7 +16,7 @@ typedef struct graph {
 
 int lines(Graph g) {return g->M;}
 
-int colums(Graph g) {return g->N;}
+int columns(Graph g) {return g->N;}
 
 int **whiteCapacity(Graph g) {return g->whiteCapacity;}
 
@@ -42,9 +42,9 @@ int **blackFlow(Graph g) {return g->blackFlow;
 int **buildMatrix(int l, int c) {
 
   int i;
-  int **res = (int**) malloc(l*sizeof(int*));
+  int **res = (int**) calloc(1, l*sizeof(int*));
   for(i = 0; i < l; ++i)
-    res[i] = (int*) malloc(c*sizeof(int));
+    res[i] = (int*) calloc(1, c*sizeof(int));
   return res;
 
 }
@@ -61,7 +61,20 @@ void readMatrix(int **matrix, int l, int c) {
 }
 
 
+void EdmondsKarp(Graph g) {
 
+  int M = lines(g);
+  int N = columns(g);
+  /*flag 0 for not visited, 1 for visited */
+  int **colour = buildMatrix(M, N);
+  int* pai = (int*) malloc(N*M*sizeof(int));
+  int* queue = (int*) malloc(N*M*sizeof(int));
+  int i,j, breakcondition = 0;
+  //Enqueue every non 0 element of whiteCapacity - whiteFlow
+  for (i = 0; i < M; i++)
+    for (j = 0; j < N; j++)
+
+}
 
 
 
