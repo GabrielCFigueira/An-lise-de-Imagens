@@ -116,7 +116,7 @@ void EdmondsKarp(Graph g) {
 
   // I am sorry. I am sorry. I am sorry.
   // Only way to do this "cleanly" on a loop (?)
-find_path:
+find_flow_augmentation_path:
 
 
   //Enqueue every non 0 element of whiteCapacity - whiteFlow
@@ -137,19 +137,23 @@ find_path:
       break;
     }
 
-    // Else, check neighbourhood
+    // Else, check neighbourhood; parent will be (i,j)
+    // This is a case where the parent is in the east
     if(i!=0 && !colour[i-1][j] && horizontalCapacity(g)[i-1][j]+horizontalFlow(g)[i-1][j]>0){
       INSERT_IN_QUEUE(i-1, j);
       INSERT_AS_PARENT(i-1, j, i, j);
     }
+    // Parent in the west
     if(i!=M-1 && !colour[i+1][j] && horizontalCapacity(g)[i][j]-horizontalFlow(g)[i][j]>0){
       INSERT_IN_QUEUE(i+1, j);
       INSERT_AS_PARENT(i+1, j, i, j);
     }
+    // Parent in the south
     if(j!=0 && !colour[i][j-1] && verticalCapacity(g)[i][j-1]+verticalFlow(g)[i][j-1]>0){
       INSERT_IN_QUEUE(i, j-1);
       INSERT_AS_PARENT(i, j-1, i, j);
     }
+    // Parent in the north
     if(j!=N-1 && !colour[i][j+1] && verticalCapacity(g)[i][j]-verticalFlow(g)[i][j]>0){
       INSERT_IN_QUEUE(i, j+1);
       INSERT_AS_PARENT(i, j+1, i, j);
@@ -176,17 +180,17 @@ find_path:
       // Calculate the residual capacity of the edge i,j; to know that, we need to know
       // from were we came -- the p_i, p_j
       switch((p_i > i || p_j > j)*2 + (i!=p_i && j==p_j)) {
-        // 00: The parent is in the north (p_j < j)
+        // 00: The parent is in the north (p_j < j) [normal flow]
         case 0: res_capacity = verticalCapacity(g)[p_i][p_j] - verticalFlow(g)[p_i][p_j];
         break;
-        // 01: The parent is in the west (p_i < i)
+        // 01: The parent is in the west (p_i < i) [normal flow]
         case 1: res_capacity = horizontalCapacity(g)[p_i][p_j] - horizontalFlow(g)[p_i][p_j];
         break;
-        // 10: The parent is in the south (p_j > j)
-        case 2: res_capacity = verticalCapacity(g)[p_i][p_j] + verticalFlow(g)[p_i][p_j];
+        // 10: The parent is in the south (p_j > j) [reverse flow]
+        case 2: res_capacity = verticalCapacity(g)[i][j] + verticalFlow(g)[i][j];
         break;
-        // 11: The parent is in the east (p_i > i)
-        case 3: res_capacity = horizontalCapacity(g)[p_i][p_j] + horizontalFlow(g)[p_i][p_j];
+        // 11: The parent is in the east (p_i > i) [reverse flow]
+        case 3: res_capacity = horizontalCapacity(g)[i][j] + horizontalFlow(g)[i][j];
         break;
       }
 
@@ -217,7 +221,7 @@ find_path:
     // but using the Queue as a stack
 
     // However, at this stage we have a repeated element here: the current (i,j)
-    // is duplicated, and the last position (first on the stack). So, before taking
+    // is duplicated on the last position of the queue (first on the stack). So, before taking
     // any element, we remove this repeated element from the stack
     --endQueue;
 
@@ -230,17 +234,17 @@ find_path:
 
       // This is the same logic as before
       switch((p_i > i || p_j > j)*2 + (i!=p_i && j==p_j)) {
-        // 00: The parent is in the north (p_j < j)
+        // 00: The parent is in the north (p_j < j) [normal flow]
         case 0: verticalFlow(g)[p_i][p_j] += min_capacity;
         break;
-        // 01: The parent is in the west (p_i < i)
+        // 01: The parent is in the west (p_i < i) [normal flow]
         case 1: horizontalFlow(g)[p_i][p_j] += min_capacity;
         break;
-        // 10: The parent is in the south (p_j > j)
-        case 2: verticalFlow(g)[p_i][p_j] -= min_capacity;
+        // 10: The parent is in the south (p_j > j) [reverse flow]
+        case 2: verticalFlow(g)[i][j] -= min_capacity;
         break;
-        // 11: The parent is in the east (p_i > i)
-        case 3: horizontalFlow(g)[p_i][p_j] -= min_capacity;
+        // 11: The parent is in the east (p_i > i) [reverse flow]
+        case 3: horizontalFlow(g)[i][j] -= min_capacity;
         break;
       }
 
@@ -258,7 +262,7 @@ find_path:
     pai = resetDoubleMatrix(pai, M, N);
     found_path = 0;
 
-    goto find_path;
+    goto find_flow_augmentation_path;
 
   } else {
     // Here, we check the vertexes that are in queue. Those vertexes are white,
