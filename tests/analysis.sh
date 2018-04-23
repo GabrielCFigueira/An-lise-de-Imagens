@@ -15,7 +15,7 @@ N_EXCLUDE=1
 TMP_FILE=$(mktemp)
 DEFAULT_CSV="../pratical_analysis.csv"
 DEFAULT_DIR="./students-tests"
-DEFAULT_GEN="./gerador"
+DEFAULT_GEN="./gera"
 N_INTERVALS=9
 N_RUNS_PER_INTERVAL=5
 
