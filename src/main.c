@@ -2,46 +2,25 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-typedef struct graph {
-  int M, N;
-  int **whiteCapacity;
-  int **blackCapacity;
-  int **verticalCapacity;
-  int **horizontalCapacity;
-  int **verticalFlow;
-  int **horizontalFlow;
-  int **whiteFlow;
-  int **blackFlow;
-} *Graph;
-
-int lines(Graph g) {return g->M;}
-
-int columns(Graph g) {return g->N;}
-
-int **whiteCapacity(Graph g) {return g->whiteCapacity;}
-
-int **blackCapacity(Graph g) {return g->blackCapacity;}
-
-int **verticalCapacity(Graph g) {return g->verticalCapacity;}
-
-int **horizontalCapacity(Graph g) {return g->horizontalCapacity;}
-
-int **verticalFlow(Graph g) {return g->verticalFlow;}
-
-int **horizontalFlow(Graph g) {return g->horizontalFlow;}
-
-int **whiteFlow(Graph g) {return g->whiteFlow;}
-
-int **blackFlow(Graph g) {return g->blackFlow;}
+// Our graph
+int M, N;
+int **whiteCapacity;
+int **blackCapacity;
+int **verticalCapacity;
+int **horizontalCapacity;
+int **verticalFlow;
+int **horizontalFlow;
+int **whiteFlow;
+int **blackFlow;
 
 
 
 // returns a lxc matrix
 int **buildMatrix(int l, int c) {
 
+  int **res;
   int i;
-  int **res = (int**) calloc(l, sizeof(int*));
+  res= (int**) calloc(l, sizeof(int*));
   for(i = 0; i < l; ++i)
     res[i] = (int*) calloc(c, sizeof(int));
   return res;
@@ -54,6 +33,27 @@ int **resetMatrix(int** matrix, int l, int c) {
   for(i = 0; i < l; ++i)
     matrix[i] = (int*) memset(matrix[i], 0, c*sizeof(int));
   return matrix;
+
+}
+
+void freeMatrix(int **matrix, int l) {
+
+  int i;
+  for(i = 0; i < l; ++i)
+    free(matrix[i]);
+  free(matrix);
+}
+
+//Reads lxc matrix to memory
+void readMatrix(int **matrix, int l, int c) {
+
+  int i, j;
+  for(i=0; i<l; ++i) {
+    for(j=0; j<c; ++j){
+      scanf("%d", &matrix[i][j]);
+    }
+  }
+
 
 }
 
@@ -76,15 +76,14 @@ int (**resetDoubleMatrix(int (**matrix)[2], int l, int c))[2] {
   return matrix;
 }
 
+void freeDoubleMatrix(int (**matrix)[2], int l) {
 
-// reads a matrix from input
-void readMatrix(int **matrix, int l, int c) {
-  int i, j;
-
-  for(i = 0; i < l; i++)
-    for(j = 0; j < c; j++)
-      scanf("%d ", &matrix[i][j]);
+  int i;
+  for(i = 0; i < l; ++i)
+    free(matrix[i]);
+  free(matrix);
 }
+
 
 // Macro to add stuff to the BFS queue
 #define INSERT_IN_QUEUE(x_cord, y_cord) do {\
@@ -101,15 +100,12 @@ void readMatrix(int **matrix, int l, int c) {
 
 
 
-void EdmondsKarp(Graph g) {
+void EdmondsKarp() {
 
-  int M, N;
   int **colour, (**pai)[2];
   int (*queue)[2], startQueue=-1, endQueue=0;
   int i, j, p_i, p_j, found_path=0, min_capacity, res_capacity;
 
-  M = lines(g);
-  N = columns(g);
   colour = buildMatrix(M, N);
   pai = buildDoubleMatrix(M,N);
   queue = (int(*)[2]) calloc(N*M, sizeof(int(*)[2]));
@@ -122,41 +118,41 @@ find_flow_augmentation_path:
   //Enqueue every non 0 element of whiteCapacity - whiteFlow
   for (i = 0; i < M; i++)
     for (j = 0; j < N; j++)
-      if (whiteCapacity(g)[i][j] - whiteFlow(g)[i][j] > 0) {
+      if (whiteCapacity[i][j] - whiteFlow[i][j] > 0) {
         INSERT_IN_QUEUE(i, j);
         INSERT_AS_PARENT(i, j, -1, -1);
       }
 
   while(++startQueue < endQueue) {
     i = queue[startQueue][0];
-    j = queue[startQueue++][1];
+    j = queue[startQueue][1];
 
     // Check if we can reach the target directly now
-    if(blackCapacity(g)[i][j] - blackFlow(g)[i][j] > 0){
+    if(blackCapacity[i][j] - blackFlow[i][j] > 0){
       found_path = 1;
       break;
     }
 
     // Else, check neighbourhood; parent will be (i,j)
     // This is a case where the parent is in the east
-    if(i!=0 && !colour[i-1][j] && horizontalCapacity(g)[i-1][j]+horizontalFlow(g)[i-1][j]>0){
-      INSERT_IN_QUEUE(i-1, j);
-      INSERT_AS_PARENT(i-1, j, i, j);
-    }
-    // Parent in the west
-    if(i!=M-1 && !colour[i+1][j] && horizontalCapacity(g)[i][j]-horizontalFlow(g)[i][j]>0){
-      INSERT_IN_QUEUE(i+1, j);
-      INSERT_AS_PARENT(i+1, j, i, j);
-    }
-    // Parent in the south
-    if(j!=0 && !colour[i][j-1] && verticalCapacity(g)[i][j-1]+verticalFlow(g)[i][j-1]>0){
+    if(j!=0 && !colour[i][j-1] && horizontalCapacity[i][j-1]+horizontalFlow[i][j-1]>0){
       INSERT_IN_QUEUE(i, j-1);
       INSERT_AS_PARENT(i, j-1, i, j);
     }
-    // Parent in the north
-    if(j!=N-1 && !colour[i][j+1] && verticalCapacity(g)[i][j]-verticalFlow(g)[i][j]>0){
+    // Parent in the west
+    if(j!=N-1 && !colour[i][j+1] && horizontalCapacity[i][j]-horizontalFlow[i][j]>0){
       INSERT_IN_QUEUE(i, j+1);
       INSERT_AS_PARENT(i, j+1, i, j);
+    }
+    // Parent in the south
+    if(i!=0 && !colour[i-1][j] && verticalCapacity[i-1][j]+verticalFlow[i-1][j]>0){
+      INSERT_IN_QUEUE(i-1, j);
+      INSERT_AS_PARENT(i-1, j, i, j);
+    }
+    // Parent in the north
+    if(i!=M-1 && !colour[i+1][j] && verticalCapacity[i][j]-verticalFlow[i][j]>0){
+      INSERT_IN_QUEUE(i+1, j);
+      INSERT_AS_PARENT(i+1, j, i, j);
     }
 
   }
@@ -168,7 +164,7 @@ find_flow_augmentation_path:
 
     // One hypotesis for the flow augmentation is the last edge,
     // the one that connects to the target
-    min_capacity = blackCapacity(g)[i][j] - blackFlow(g)[i][j];
+    min_capacity = blackCapacity[i][j] - blackFlow[i][j];
 
     INSERT_IN_QUEUE(i,j);
     p_i = pai[i][j][0];
@@ -179,18 +175,18 @@ find_flow_augmentation_path:
 
       // Calculate the residual capacity of the edge i,j; to know that, we need to know
       // from were we came -- the p_i, p_j
-      switch((p_i > i || p_j > j)*2 + (i!=p_i && j==p_j)) {
-        // 00: The parent is in the north (p_j < j) [normal flow]
-        case 0: res_capacity = verticalCapacity(g)[p_i][p_j] - verticalFlow(g)[p_i][p_j];
+      switch((p_i > i || p_j > j)*2 + (i==p_i && j!=p_j)) {
+        // 00: The parent is in the north (p_i < i) [normal flow]
+        case 0: res_capacity = verticalCapacity[p_i][p_j] - verticalFlow[p_i][p_j];
         break;
-        // 01: The parent is in the west (p_i < i) [normal flow]
-        case 1: res_capacity = horizontalCapacity(g)[p_i][p_j] - horizontalFlow(g)[p_i][p_j];
+        // 01: The parent is in the west (p_j < j) [normal flow]
+        case 1: res_capacity = horizontalCapacity[p_i][p_j] - horizontalFlow[p_i][p_j];
         break;
-        // 10: The parent is in the south (p_j > j) [reverse flow]
-        case 2: res_capacity = verticalCapacity(g)[i][j] + verticalFlow(g)[i][j];
+        // 10: The parent is in the south (p_i > i) [reverse flow]
+        case 2: res_capacity = verticalCapacity[i][j] + verticalFlow[i][j];
         break;
-        // 11: The parent is in the east (p_i > i) [reverse flow]
-        case 3: res_capacity = horizontalCapacity(g)[i][j] + horizontalFlow(g)[i][j];
+        // 11: The parent is in the east (p_j > j) [reverse flow]
+        case 3: res_capacity = horizontalCapacity[i][j] + horizontalFlow[i][j];
         break;
       }
 
@@ -206,7 +202,7 @@ find_flow_augmentation_path:
     }
 
     // Finally, see the first edge on the path: from the source to a point in the matrix
-    res_capacity = whiteCapacity(g)[i][j] - whiteFlow(g)[i][j];
+    res_capacity = whiteCapacity[i][j] - whiteFlow[i][j];
     min_capacity = (min_capacity > res_capacity) ? res_capacity : min_capacity;
 
 
@@ -215,7 +211,7 @@ find_flow_augmentation_path:
 
 
     // Add in source->vertex1 edge
-    whiteFlow(g)[i][j] += min_capacity;
+    whiteFlow[i][j] += min_capacity;
 
     // Process all the vertex of the path that are in the matrix,
     // but using the Queue as a stack
@@ -233,25 +229,25 @@ find_flow_augmentation_path:
       j = queue[endQueue][1];
 
       // This is the same logic as before
-      switch((p_i > i || p_j > j)*2 + (i!=p_i && j==p_j)) {
-        // 00: The parent is in the north (p_j < j) [normal flow]
-        case 0: verticalFlow(g)[p_i][p_j] += min_capacity;
+      switch((p_i > i || p_j > j)*2 + (i==p_i && j!=p_j)) {
+        // 00: The parent is in the north (p_i < i) [normal flow]
+        case 0: verticalFlow[p_i][p_j] += min_capacity;
         break;
-        // 01: The parent is in the west (p_i < i) [normal flow]
-        case 1: horizontalFlow(g)[p_i][p_j] += min_capacity;
+        // 01: The parent is in the west (p_j < j) [normal flow]
+        case 1: horizontalFlow[p_i][p_j] += min_capacity;
         break;
-        // 10: The parent is in the south (p_j > j) [reverse flow]
-        case 2: verticalFlow(g)[i][j] -= min_capacity;
+        // 10: The parent is in the south (p_i > i) [reverse flow]
+        case 2: verticalFlow[i][j] -= min_capacity;
         break;
-        // 11: The parent is in the east (p_i > i) [reverse flow]
-        case 3: horizontalFlow(g)[i][j] -= min_capacity;
+        // 11: The parent is in the east (p_j > j) [reverse flow]
+        case 3: horizontalFlow[i][j] -= min_capacity;
         break;
       }
 
     }
 
     // Add flow to vertexK->target edge
-    blackFlow(g)[i][j] += min_capacity;
+    blackFlow[i][j] += min_capacity;
 
 
     // Restart now: do everything over again, until there are no more paths
@@ -265,24 +261,74 @@ find_flow_augmentation_path:
     goto find_flow_augmentation_path;
 
   } else {
+
     // Here, we check the vertexes that are in queue. Those vertexes are white,
     // for reasons currently not completely understood
+
+    // Reutilize res_capacity to make sum of flow (max flow = min cut)
+    res_capacity = 0;
+    for(i=0; i<M; ++i)
+      for(j=0; j<N; ++j)
+        res_capacity += whiteFlow[i][j];
+
+    printf("%d\n\n", res_capacity);
+
+    // Now, see the colour. All the vertexes we hit are background (C)
+    for(i=0; i<M; ++i){
+      for(j=0; j<N; ++j){
+        if(colour[i][j])
+          printf("C ");
+        else
+          printf("P ");
+      }
+      putchar('\n');
+    }
   }
+
+  //Cleanup
+  free(queue);
+  freeMatrix(colour, M);
+  freeDoubleMatrix(pai, M);
+  return;
 }
 
 
 
 
 int main() {
-  // receives M and N as input
-  // receives the weight of the black pixels, builds a MxN matrix with them: whiteCapacity
-  // receives the weight of the white pixels, builds a MxN matrix with them: blackCapacity
-  // receives the capacity of each horizontal edge, builds a Mx(N-1) matrix with them: horizontalCapacity
-  // receives the capacity of each vertical edge, builds a (M-1)xN matrix with them: vertical Capacity
-  // builds two MxN matrix, one with the edges between the source (of the flow) and
-  // the pixels and another with the edges between the target and the pixels
-  // builds a Mx(N-1) empty matrix: horizontalFlow
-  // builds a (M-1)*N empty matrix: verticalFlow
+
+  scanf("%d %d\n\n", &M, &N);
+
+  whiteCapacity = buildMatrix(M,N);
+  blackCapacity = buildMatrix(M,N);
+  horizontalCapacity = buildMatrix(M, N-1);
+  verticalCapacity = buildMatrix(M-1, N);
+
+  whiteFlow = buildMatrix(M, N);
+  blackFlow = buildMatrix(M, N);
+  horizontalFlow = buildMatrix(M, N-1);
+  verticalFlow = buildMatrix(M-1, N);
+
+
+  // White capacity: weight if it is of foreground (1o plano)
+  readMatrix(whiteCapacity, M, N);
+  // Black capacity: weight if it is of background (cena'rio)
+  readMatrix(blackCapacity, M, N);
+  readMatrix(horizontalCapacity, M, N-1);
+  readMatrix(verticalCapacity, M-1, N);
+
+  EdmondsKarp();
+
+  freeMatrix(whiteCapacity, M);
+  freeMatrix(blackCapacity, M);
+  freeMatrix(horizontalCapacity, M);
+  freeMatrix(verticalCapacity, M-1);
+
+  freeMatrix(whiteFlow, M);
+  freeMatrix(blackFlow, M);
+  freeMatrix(horizontalFlow, M);
+  freeMatrix(verticalFlow, M-1);
+
 
   return 0;
 }
