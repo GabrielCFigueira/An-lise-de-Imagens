@@ -62,9 +62,9 @@ void readMatrix(int **matrix, int l, int c) {
 int (**buildDoubleMatrix(int l, int c))[2] {
 
   int i;
-  int (**res)[2] = (int(**)[2]) calloc(l, sizeof(int(**)[2]));
+  int (**res)[2] = (int(**)[2]) calloc(l, sizeof(int(*)[2]));
   for(i = 0; i < l; ++i)
-    res[i] = (int(*)[2]) calloc(c, sizeof(int(*)[2]));
+    res[i] = (int(*)[2]) calloc(c, sizeof(int[2]));
   return res;
 }
 
