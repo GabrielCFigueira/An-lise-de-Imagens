@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Our graph
+/* Our graph */
 int M, N;
 int **whiteCapacity;
 int **blackCapacity;
@@ -15,7 +15,7 @@ int **blackFlow;
 
 
 
-// returns a lxc matrix
+/* returns a lxc matrix */
 int **buildMatrix(int l, int c) {
 
   int **res;
@@ -44,7 +44,7 @@ void freeMatrix(int **matrix, int l) {
   free(matrix);
 }
 
-//Reads lxc matrix to memory
+/* Reads lxc matrix to memory */
 void readMatrix(int **matrix, int l, int c) {
 
   int i, j;
@@ -58,7 +58,7 @@ void readMatrix(int **matrix, int l, int c) {
 }
 
 
-// Double matrix, used to keep ancestors during BFS
+/* Double matrix, used to keep ancestors during BFS */
 int (**buildDoubleMatrix(int l, int c))[2] {
 
   int i;
@@ -85,7 +85,7 @@ void freeDoubleMatrix(int (**matrix)[2], int l) {
 }
 
 
-// Macro to add stuff to the BFS queue
+/* Macro to add stuff to the BFS queue */
 #define INSERT_IN_QUEUE(x_cord, y_cord) do {\
                   queue[endQueue][0] = x_cord; \
                   queue[endQueue][1] = y_cord; \
@@ -110,12 +110,13 @@ void EdmondsKarp() {
   pai = buildDoubleMatrix(M,N);
   queue = (int(*)[2]) calloc(N*M, sizeof(int(*)[2]));
 
-  // I am sorry. I am sorry. I am sorry.
-  // Only way to do this "cleanly" on a loop (?)
+
+  /* I am sorry. I am sorry. I am sorry.
+     Only way to do this "cleanly" on a loop (?) */
 find_flow_augmentation_path:
 
 
-  //Enqueue every non 0 element of whiteCapacity - whiteFlow
+  /* Enqueue every non 0 element of whiteCapacity - whiteFlow */
   for (i = 0; i < M; i++)
     for (j = 0; j < N; j++)
       if (whiteCapacity[i][j] - whiteFlow[i][j] > 0) {
@@ -127,29 +128,29 @@ find_flow_augmentation_path:
     i = queue[startQueue][0];
     j = queue[startQueue][1];
 
-    // Check if we can reach the target directly now
+    /* Check if we can reach the target directly now */
     if(blackCapacity[i][j] - blackFlow[i][j] > 0){
       found_path = 1;
       break;
     }
 
-    // Else, check neighbourhood; parent will be (i,j)
-    // This is a case where the parent is in the east
+    /* Else, check neighbourhood; parent will be (i,j)
+       This is a case where the parent is in the east */
     if(j!=0 && !colour[i][j-1] && horizontalCapacity[i][j-1]+horizontalFlow[i][j-1]>0){
       INSERT_IN_QUEUE(i, j-1);
       INSERT_AS_PARENT(i, j-1, i, j);
     }
-    // Parent in the west
+    /* Parent in the west */
     if(j!=N-1 && !colour[i][j+1] && horizontalCapacity[i][j]-horizontalFlow[i][j]>0){
       INSERT_IN_QUEUE(i, j+1);
       INSERT_AS_PARENT(i, j+1, i, j);
     }
-    // Parent in the south
+    /* Parent in the south */
     if(i!=0 && !colour[i-1][j] && verticalCapacity[i-1][j]+verticalFlow[i-1][j]>0){
       INSERT_IN_QUEUE(i-1, j);
       INSERT_AS_PARENT(i-1, j, i, j);
     }
-    // Parent in the north
+    /* Parent in the north */
     if(i!=M-1 && !colour[i+1][j] && verticalCapacity[i][j]-verticalFlow[i][j]>0){
       INSERT_IN_QUEUE(i+1, j);
       INSERT_AS_PARENT(i+1, j, i, j);
@@ -157,43 +158,43 @@ find_flow_augmentation_path:
 
   }
 
-  // Here we have a path OR we have a complete cut
-  // Reutilize queue to save the found path as we go back to ancestors
+  /* Here we have a path OR we have a complete cut
+     Reutilize queue to save the found path as we go back to ancestors */
   if(found_path) {
     endQueue = 0;
 
-    // One hypotesis for the flow augmentation is the last edge,
-    // the one that connects to the target
+    /* One hypotesis for the flow augmentation is the last edge,
+       the one that connects to the target */
     min_capacity = blackCapacity[i][j] - blackFlow[i][j];
 
     INSERT_IN_QUEUE(i,j);
     p_i = pai[i][j][0];
     p_j = pai[i][j][1];
 
-    // This loop only processes connections between vertexes on the matrix
+    /* This loop only processes connections between vertexes on the matrix */
     while(p_i != -1) {
 
-      // Calculate the residual capacity of the edge i,j; to know that, we need to know
-      // from were we came -- the p_i, p_j
+      /* Calculate the residual capacity of the edge i,j; to know that, we need to know
+         from were we came -- the p_i, p_j */
       switch((p_i > i || p_j > j)*2 + (i==p_i && j!=p_j)) {
-        // 00: The parent is in the north (p_i < i) [normal flow]
+        /* 00: The parent is in the north (p_i < i) [normal flow] */
         case 0: res_capacity = verticalCapacity[p_i][p_j] - verticalFlow[p_i][p_j];
         break;
-        // 01: The parent is in the west (p_j < j) [normal flow]
+        /* 01: The parent is in the west (p_j < j) [normal flow] */
         case 1: res_capacity = horizontalCapacity[p_i][p_j] - horizontalFlow[p_i][p_j];
         break;
-        // 10: The parent is in the south (p_i > i) [reverse flow]
+        /* 10: The parent is in the south (p_i > i) [reverse flow] */
         case 2: res_capacity = verticalCapacity[i][j] + verticalFlow[i][j];
         break;
-        // 11: The parent is in the east (p_j > j) [reverse flow]
+        /* 11: The parent is in the east (p_j > j) [reverse flow] */
         case 3: res_capacity = horizontalCapacity[i][j] + horizontalFlow[i][j];
         break;
       }
 
-      // Update the minimum residual capacity present
+      /* Update the minimum residual capacity present */
       min_capacity = (min_capacity > res_capacity) ? res_capacity : min_capacity;
 
-      // Move on to the next parent->child edge
+      /* Move on to the next parent->child edge */
       INSERT_IN_QUEUE(p_i, p_j);
       i = p_i;
       j = p_j;
@@ -201,57 +202,57 @@ find_flow_augmentation_path:
       p_j = pai[i][j][1];
     }
 
-    // Finally, see the first edge on the path: from the source to a point in the matrix
+    /* Finally, see the first edge on the path: from the source to a point in the matrix */
     res_capacity = whiteCapacity[i][j] - whiteFlow[i][j];
     min_capacity = (min_capacity > res_capacity) ? res_capacity : min_capacity;
 
 
-    // Ok, now we are going to reprocess the edges, putting min_capacity on the flow
-    // That may result in adding or subtracting, according to orientation of the path
+    /* Ok, now we are going to reprocess the edges, putting min_capacity on the flow
+       That may result in adding or subtracting, according to orientation of the path */
 
 
-    // Add in source->vertex1 edge
+    /* Add in source->vertex1 edge */
     whiteFlow[i][j] += min_capacity;
 
-    // Process all the vertex of the path that are in the matrix,
-    // but using the Queue as a stack
+    /* Process all the vertex of the path that are in the matrix,
+       but using the Queue as a stack */
 
-    // However, at this stage we have a repeated element here: the current (i,j)
-    // is duplicated on the last position of the queue (first on the stack). So, before taking
-    // any element, we remove this repeated element from the stack
+    /* However, at this stage we have a repeated element here: the current (i,j)
+       is duplicated on the last position of the queue (first on the stack). So, before taking
+       any element, we remove this repeated element from the stack */
     --endQueue;
 
-    // Start processing the stack
+    /* Start processing the stack */
     while(--endQueue >= 0) {
       p_i = i;
       p_j = j;
       i = queue[endQueue][0];
       j = queue[endQueue][1];
 
-      // This is the same logic as before
+      /* This is the same logic as before */
       switch((p_i > i || p_j > j)*2 + (i==p_i && j!=p_j)) {
-        // 00: The parent is in the north (p_i < i) [normal flow]
+        /* 00: The parent is in the north (p_i < i) [normal flow] */
         case 0: verticalFlow[p_i][p_j] += min_capacity;
         break;
-        // 01: The parent is in the west (p_j < j) [normal flow]
+        /* 01: The parent is in the west (p_j < j) [normal flow] */
         case 1: horizontalFlow[p_i][p_j] += min_capacity;
         break;
-        // 10: The parent is in the south (p_i > i) [reverse flow]
+        /* 10: The parent is in the south (p_i > i) [reverse flow] */
         case 2: verticalFlow[i][j] -= min_capacity;
         break;
-        // 11: The parent is in the east (p_j > j) [reverse flow]
+        /* 11: The parent is in the east (p_j > j) [reverse flow] */
         case 3: horizontalFlow[i][j] -= min_capacity;
         break;
       }
 
     }
 
-    // Add flow to vertexK->target edge
+    /* Add flow to vertexK->target edge */
     blackFlow[i][j] += min_capacity;
 
 
-    // Restart now: do everything over again, until there are no more paths
-    // Cleanup here
+    /* Restart now: do everything over again, until there are no more paths
+       Cleanup here */
     startQueue = -1;
     endQueue = 0;
     colour = resetMatrix(colour, M, N);
@@ -262,10 +263,10 @@ find_flow_augmentation_path:
 
   } else {
 
-    // Here, we check the vertexes that are in queue. Those vertexes are white,
-    // for reasons currently not completely understood
+    /* Here, we check the vertexes that are in queue. Those vertexes are white,
+       for reasons currently not completely understood */
 
-    // Reutilize res_capacity to make sum of flow (max flow = min cut)
+    /* Reutilize res_capacity to make sum of flow (max flow = min cut) */
     res_capacity = 0;
     for(i=0; i<M; ++i)
       for(j=0; j<N; ++j)
@@ -273,7 +274,7 @@ find_flow_augmentation_path:
 
     printf("%d\n\n", res_capacity);
 
-    // Now, see the colour. All the vertexes we hit are background (C)
+    /* Now, see the colour. All the vertexes we hit are background (C) */
     for(i=0; i<M; ++i){
       for(j=0; j<N; ++j){
         if(colour[i][j])
@@ -285,11 +286,11 @@ find_flow_augmentation_path:
     }
   }
 
-  //Cleanup
+  /*Cleanup */
   free(queue);
   freeMatrix(colour, M);
   freeDoubleMatrix(pai, M);
-  return;
+  return 0;
 }
 
 
@@ -310,9 +311,9 @@ int main() {
   verticalFlow = buildMatrix(M-1, N);
 
 
-  // White capacity: weight if it is of foreground (1o plano)
+  /* White capacity: weight if it is of foreground (1o plano) */
   readMatrix(whiteCapacity, M, N);
-  // Black capacity: weight if it is of background (cena'rio)
+  /* Black capacity: weight if it is of background (cena'rio) */
   readMatrix(blackCapacity, M, N);
   readMatrix(horizontalCapacity, M, N-1);
   readMatrix(verticalCapacity, M-1, N);
