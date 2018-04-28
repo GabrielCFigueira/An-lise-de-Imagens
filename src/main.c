@@ -111,6 +111,22 @@ void EdmondsKarp() {
   queue = (int(*)[2]) calloc(N*M, sizeof(int(*)[2]));
 
 
+  /* Heuristic: try to fill all paths between source and target
+     that are of the form source --> u --> target */
+  for (i = 0; i < M; i++) {
+    for (j = 0; j < N; j++) {
+      res_capacity = whiteCapacity[i][j];
+      min_capacity = blackCapacity[i][j];
+      if (res_capacity > 0 && min_capacity > 0) {
+        min_capacity = (res_capacity < min_capacity) ? res_capacity : min_capacity;
+        whiteFlow[i][j] = blackFlow[i][j] = min_capacity;
+      }
+    }
+  }
+
+
+
+
   /* I am sorry. I am sorry. I am sorry.
      Only way to do this "cleanly" on a loop (?) */
 find_flow_augmentation_path:
@@ -290,7 +306,7 @@ find_flow_augmentation_path:
   free(queue);
   freeMatrix(colour, M);
   freeDoubleMatrix(pai, M);
-  return 0;
+  return;
 }
 
 

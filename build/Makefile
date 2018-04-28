@@ -13,7 +13,7 @@ CC          := gcc
 CFLAGS      := -Wall -Wextra -pedantic -pedantic-errors -g
 CFLAGS_R    := -O3 -ansi -Wall
 LDFLAGS     := -lm
-#CFLAGS      := $(CFLAGS_R)
+CFLAGS      := $(CFLAGS_R)
 
 basename    := main
 objects      = $(addsuffix .o, $(basename))
