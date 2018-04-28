@@ -72,7 +72,7 @@ int (**resetDoubleMatrix(int (**matrix)[2], int l, int c))[2] {
 
   int i;
   for(i = 0; i < l; ++i)
-    matrix[i] = (int(*)[2]) memset(matrix[i], 0, c*sizeof(int(*)[2]));
+    matrix[i] = (int(*)[2]) memset(matrix[i], 0, c*sizeof(int[2]));
   return matrix;
 }
 
