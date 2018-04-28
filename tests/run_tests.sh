@@ -12,7 +12,7 @@ run() {
 	for t in "$TESTS_DIR"/t[0-9]*"$INPUTS"; do
 		echo $t
 		base="${t%$INPUTS}"
-		$EXEC < "$t" >"$base""$OUTPUTS_GENERATED"
+		time $EXEC < "$t" >"$base""$OUTPUTS_GENERATED"
 	done
 }
 
