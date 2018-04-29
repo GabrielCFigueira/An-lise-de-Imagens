@@ -108,7 +108,7 @@ void EdmondsKarp() {
 
   colour = buildMatrix(M, N);
   pai = buildDoubleMatrix(M,N);
-  queue = (int(*)[2]) calloc(N*M, sizeof(int(*)[2]));
+  queue = (int(*)[2]) calloc(N*M, sizeof(int[2]));
 
 
   /* Heuristic: try to fill all paths between source and target
