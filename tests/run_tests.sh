@@ -5,29 +5,44 @@ INPUTS=".in"
 OUTPUTS_EXPECTED=".out"
 OUTPUTS_GENERATED=".gen"
 DEFAULT_EXE="../asa.out"
+TEMP_FILE=$(mktemp)
+TIME="command time -f %U"
 
-run() {
+run_single_test(){
+	if [ -r "$1""$INPUTS" ]; then
+		echo -n "Test ${1}\t"
+		$TIME $EXEC < "$1""$INPUTS" >"$1""$OUTPUTS_GENERATED" 2>"$TEMP_FILE"
 
-	local base;
-	for t in "$TESTS_DIR"/*"$INPUTS"; do
-		echo $t
-		base="${t%$INPUTS}"
-		$EXEC < "$t" >"$base""$OUTPUTS_GENERATED"
-	done
+	fi
 }
 
-compare() {
-	for attempt in "$TESTS_DIR"/*"$OUTPUTS_GENERATED"; do
-		echo -n "Test of input ${attempt##*/}: "
-		base="${attempt%$OUTPUTS_GENERATED}"
-		cmp -s "$attempt" "$base""$OUTPUTS_EXPECTED"
+verify_single_test(){
+	local time_used;
+	if [ -r "$1""$OUTPUTS_GENERATED" ]; then
+
+		time_used=`head "$TEMP_FILE"`
+
+		cmp -s "$1""$OUTPUTS_GENERATED" "$1""$OUTPUTS_EXPECTED"
 
 		if [ "$?" -eq 0 ]; then
-			echo  "\t\tTest passed"
-			rm "$attempt"
+			echo  "\b\t\tTest passed\t\t$time_used"
+			rm "$1""$OUTPUTS_GENERATED"
+			rm "$TEMP_FILE"
 		else
 			echo  "\t\tTest failed /!\\"
 		fi
+	fi
+}
+
+
+
+run_and_verify_all() {
+
+	local base;
+	for t in "$TESTS_DIR"/t[0-4][0-9]*"$INPUTS"; do
+		base="${t%$INPUTS}"
+		run_single_test "$base"
+		verify_single_test "$base"
 	done
 }
 
@@ -39,5 +54,4 @@ else
 fi
 
 
-run;
-compare;
+run_and_verify_all;
