@@ -10,45 +10,49 @@ ORIG_DIR=$(pwd)
 cd $(dirname "$0")
 
 EXECUTABLE="../asa.out"
-N_RUNS=5
-N_EXCLUDE=1
+TIME='command time -f "%U+%S"'
+N_RUNS=1
+N_EXCLUDE=0
 TMP_FILE=$(mktemp)
 DEFAULT_CSV="../pratical_analysis.csv"
-DEFAULT_DIR="./students-tests"
+TESTS_DIR="./students-tests"
 DEFAULT_GEN="./gera"
-N_INTERVALS=9
-N_RUNS_PER_INTERVAL=5
+N_INTERVALS=15
+N_RUNS_PER_INTERVAL=2
 
 memory(){
   if [ "$1" ]  && [ -f "$1" ] ; then
+    printf "  - Heap allocation test: " >&2
     valgrind --tool=massif --massif-out-file="$TMP_FILE" ../asa.out <"$1"  >/dev/null 2>&1
     grep mem_heap_B "$TMP_FILE" | sed -e 's/mem_heap_B=\(.*\)/\1/' | sort -g | tail -n 1
+    printf "done.\n" >&2
   fi
 }
 
 run_time(){
   #Using bash more precise timing
   if [ "$1" ]  && [ -f "$1" ] ; then
-    TIMEFORMAT="%U+%S"
-    local TIME_SUM=$(for i in $(seq $N_RUNS); do $(which time) -f "$TIMEFORMAT" "$EXECUTABLE" <"$1" 2>&1 1>/dev/null | bc; done \
-                      | sort | head -n $(($N_RUNS - $N_EXCLUDE)) | tail -n +$(($N_EXCLUDE+1)) | tr '\n' + )
+    printf "  - Time tests (doing: %d, excluding: %dx2): " "$N_RUNS" "$N_EXCLUDE" >&2
+    TIME_SUM=$(for i in $(seq $N_RUNS); do $TIME $EXECUTABLE <"$1" 2>&1 1>/dev/null | bc; done \
+                    | sort | head -n $(($N_RUNS - $N_EXCLUDE)) | tail -n +$(($N_EXCLUDE+1)) | tr '\n' + )
     printf "scale=4; (%s0)/%d\n"  "$TIME_SUM" $(($N_RUNS - 2*$N_EXCLUDE)) | bc
-  fi
+    printf "done.\n" >&2
+ fi
 }
 
 csv_line(){
 
   if [ "$1" ] && [ -f "$1" ] ; then
-    V=`head -n1 $1`
-    E=`head -n2 $1 | tail -n +2`
-    printf "%s,%s,%s,%.3f\n" "$V" "$E" `memory "$1"` `run_time "$1"`
+    M=`head -n1 $1| cut -d ' ' -f 1`
+    N=`head -n1 $1| cut -d ' ' -f 2`
+    printf "%s,%s,%s,%.3f\n" "$M" "$N" `memory "$1"` `run_time "$1"`
   fi
 
 }
 
 
-csv_file(){
-  for f in "$DEFAULT_DIR"/*.in ; do
+example_tests(){
+  for f in "$TESTS_DIR"/*.in ; do
     csv_line "$f"
   done >"$DEFAULT_CSV"
 }
@@ -57,24 +61,24 @@ csv_file(){
 random_tests() {
 
   local F=`mktemp`
+  local N_V
   echo "Starting big random tests" >&2
   for i in $(seq $N_INTERVALS); do
-    printf "Interval number %d\n" "$i" >&2
-    local BASE=$(($i * 100000))
-    local MAX=$(($BASE + 100000))
+    local BASE=$(($i *50 + 100))
+    local MAX=$(($BASE + 50))
+    printf "Interval number %d; range: %d-%d\n" "$i" "$BASE" "$MAX" >&2
     for j in $(seq $N_RUNS_PER_INTERVAL); do
-      printf "Test %d/5\n" "$j" >&2
-      local N_V=`shuf -i $BASE-$MAX -n1`
-      local N_E=$((`shuf -i 2-6 -n1` * $N_V))
-      local N_SCC=$(($N_V / `shuf -i 2-100 -n1`))
-      local SEED=`shuf -i 1-4096 -n1`
-      $DEFAULT_GEN $N_V $N_E $N_SCC 1 1000 $SEED >$F
+      N_V=`shuf -i $BASE-$MAX -n1`
+      printf "Test %d/%d; size: %d\n" "$j" "$N_RUNS_PER_INTERVAL" "$N_V" >&2
+      $DEFAULT_GEN $N_V 0 >$F
       csv_line "$F"
-    done
+   done
   done >>"$DEFAULT_CSV"
+  rm "$F"
 
 }
 
 >"$DEFAULT_CSV"
 random_tests
+rm "$TMP_FILE"
 cd "$ORIG_DIR"

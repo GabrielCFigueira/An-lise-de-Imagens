@@ -129,20 +129,20 @@ relações de vizinhança, um arco proveniente da *source* e outro arco que tem
 como destino o *target*.
 
 A nossa solução, como é baseada no algoritmo *Edmonds-Karp*, à partida tem
-complexidade temporal $O(V^2E)$. No entanto, como $E < 6V$, então podemos
+complexidade temporal $O(VE^2)$. No entanto, como $E < 6V$, então podemos
 afirmar que a complexidade assimptótica deste algoritmo é $V^3$.
 
 Além disso, durante o algoritmo *Edmonds-Karp* o espaço utilizado é $O(V)$, uma
 vez que este algoritmo precisa apenas das mesmas estruturas de memória que uma
-BFS, que tem complexidade $O[V]$, mais o espaço necessário para guardar os
+BFS, que tem complexidade $O(V)$, mais o espaço necessário para guardar os
 fluxos, que é $O(E) = O(V)$ no nosso problema.
 
 Posto isto, as complexidades temporal e espacial da nossa solução são:
 
-| Complexidade  | Edmonds-Karp | Calcular peso mínimo | Classificar píxeis |
-|:-------------:|:------------:|:--------------------:|:------------------:|
-| Temporal      | $O(V^3)$     | $O(V)$               |   $O(V)$           |
-| Espacial      | $O(V)$       | $O(V)$               |   $O(V)$           |
+|                       | Edmonds-Karp | Calcular peso mínimo | Classificar píxeis |
+|:---------------------:|:------------:|:--------------------:|:------------------:|
+| Complexidade Temporal | $O(V^3)$     | $O(V)$               |   $O(V)$           |
+| Complexidade Espacial | $O(V)$       | $O(V)$               |   $O(V)$           |
 
 
 Logo, podemos afirmar que a nossa solução tem uma complexidade teórica temporal
@@ -151,18 +151,20 @@ de $O(V^3)$ e complexidade espacial $O(V)$.
 ## Análise Prática
 
 TODO: CHANGE THIS!!!
+
 Para testar experimentalmente a eficiência do algoritmo, foram gerados
-aleatoriamente 45 testes, com o número de vértices a variar entre 100 000 e
-1 000 000, e o número de arcos entre 2 a 6 vezes maior que o número de vértices.
+aleatoriamente 24 testes, com a dimensão em píxeis da imagem a variar entre 40
+000 e 810 000.
 Os testes foram executados nos servidores do sistema Sigma da DSI, correndo num
 computador com processadores Intel(R) Xeon(R) CPU E5-2620 @ 2.00GHz, 8-core, com
 16 GB de RAM.
 
 Para medir memória usada, foi utilizado o *Valgrind*, mais especificamente a
 ferramenta *Massif*; para medir tempos de execução, foi utilizado o comando
-*time*, usando tempo de execução apenas em modo utilizador.
+*time*, somando os tempos de execução em modo utilizador e sistema.
 
 
+![](./docs/chart.png)
 
 
 ## Referências:
