@@ -18,8 +18,8 @@ ZIP_FLAGS   := -ur --quiet
 
 CLEAN_COM   := cleaner
 
-REPORT_NAME := docs/relatorio-al040
-
+REPORT_NAME  := docs/relatorio-al040
+BIBLIOGRAPHY := docs/references.bibtex
 .DEFAULT_GOAL := .DEFAULT
 
 .DEFAULT:
@@ -42,7 +42,7 @@ do :
 	$(MAKE) -C $(OBJ_FILES)
 
 report :
-	pandoc -f markdown -t latex $(REPORT_NAME).md -o $(REPORT_NAME).pdf
+	pandoc --bibliography=$(BIBLIOGRAPHY) -f markdown -t latex $(REPORT_NAME).md -o $(REPORT_NAME).pdf
 
 analysis :
 	$(ANA_COMM)
