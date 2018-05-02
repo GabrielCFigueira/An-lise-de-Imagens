@@ -13,7 +13,7 @@ CC          := gcc
 CFLAGS      := -Wall -Wextra -pedantic -pedantic-errors -g
 CFLAGS_R    := -O3 -ansi -Wall
 LDFLAGS     := -lm
-#CFLAGS      := $(CFLAGS_R)
+CFLAGS      := $(CFLAGS_R)
 
 basename    := main
 objects      = $(addsuffix .o, $(basename))
@@ -25,7 +25,10 @@ define compile
 	$(CC) $(CFLAGS) $(objects) -o $(PROGRAM) $(LDFLAGS)
 endef
 
-.PHONY: mooshak
+.PHONY: main mooshak
+main        : main.o
+	$(compile)
+
 
 mooshak     : basename = mooshak
 mooshak     : mooshak.o
@@ -33,7 +36,7 @@ mooshak     : mooshak.o
 
 
 # Source code
-
+main.o      : main.c
 
 # Utils
 .PHONY : clean cleaner full
