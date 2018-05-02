@@ -7,7 +7,7 @@ author:
 papersize: A4
 fontsize: 12pt
 geometry: margin=3cm
-geometry: vmargin=2cm
+geometry: vmargin=1.8cm
 link-citations: true
 ---
 
@@ -62,7 +62,7 @@ são os vértices e as relações de vizinhança são os arcos (de capacidade
 $f_{pp'}$).
 Além disso, criamos dois vértices "virtuais", i.e., que não são píxeis, que são
 a *source* e o *target*. O peso dos arcos entre a *source* e os píxeis é
-$\ell_p$, e entre os píxeis e o *target* é $c_p$. Estes arcos são dirigidos.
+$\ell_p$, e entre os píxeis e o *target* é $c_p$.
 
 Visto desta maneira, o problema de encontrar uma segmentação torna-se no
 problema de encontrar uma bipartição no grafo que minimize o peso -- o que
@@ -165,7 +165,7 @@ entanto, com o gerador que nos foi dado e com a nossa implementação, o número
 caminhos de aumento é $O(\sqrt{V})$. Assim sendo, a complexidade que
 esperamos observar experimentalmente é $O(\sqrt{V})\times O(V) =  O(V^{3/2})$.
 
-![](./docs/charts/BFS_chart.png){ height=25% }
+![](./docs/charts/BFS_chart.png){ height=27.5% }
 
 
 Para testar experimentalmente a eficiência do algoritmo, foram gerados
@@ -179,14 +179,14 @@ ferramenta *Massif*; para medir tempos de execução, foi utilizado o comando
 *time*, somando os tempos de execução em modo utilizador e sistema.
 
 
-![](./docs/charts/resource_chart.png){ height=25% }
+![](./docs/charts/resource_chart.png){ height=27.5% }
 
 
 Podemos ver que a complexidade temporal observada está relativamente
 próxima, embora ligeiramente acima, do valor esperado. Tal pode ser atribuído a
-imprecisão a medir o tempo ou ao facto de que os testes foram executados num
-servidor com outros utilizadores ativos, ou ainda a efeitos secundários no
-acesso à memória, como *cache misses*. A complexidade espacial está de acordo
+imprecisão a medir o tempo, ou ao facto de que os testes terem sido executados num
+servidor com outros utilizadores ativos, ou ainda a acessos à memória em tempo
+não constante devido a *cache misses*. A complexidade espacial está de acordo
 com os valores esperados.
 
 
