@@ -129,12 +129,12 @@ relações de vizinhança, um arco proveniente da *source* e outro arco que tem
 como destino o *target*.
 
 A nossa solução, como é baseada no algoritmo *Edmonds-Karp*, à partida tem
-complexidade temporal $O(VE^2)$. No entanto, como $E < 6V$, então podemos
-afirmar que a complexidade assimptótica deste algoritmo é $V^3$.
+complexidade temporal (e espacial) $O(VE^2)$. No entanto, como $E < 6V$,
+então podemos afirmar que a complexidade assimptótica deste algoritmo é $V^3$.
 
 Além disso, durante o algoritmo *Edmonds-Karp* o espaço utilizado é $O(V)$, uma
 vez que este algoritmo precisa apenas das mesmas estruturas de memória que uma
-BFS, que tem complexidade $O(V)$, mais o espaço necessário para guardar os
+BFS, que tem complexidade $O(V+E) = O(V)$, mais o espaço necessário para guardar os
 fluxos, que é $O(E) = O(V)$ no nosso problema.
 
 Posto isto, as complexidades temporal e espacial da nossa solução são:
@@ -146,15 +146,23 @@ Posto isto, as complexidades temporal e espacial da nossa solução são:
 
 
 Logo, podemos afirmar que a nossa solução tem uma complexidade teórica temporal
-de $O(V^3)$ e complexidade espacial $O(V)$.
+dada pelo algoritmo de *Edmonds-Karp* de $O(V^3)$ e complexidade espacial $O(V)$.
 
 ## Análise Prática
 
-TODO: CHANGE THIS!!!
+A complexidade temporal do algoritmo de *Edmonds-Karp* depende de duas coisas: a
+complexidade de encontrar caminhos de aumento com o algoritmo BFS e o número de
+caminhos de aumento encontrados. Ora, em geral, o número de caminhos de aumento
+é $O(V\times E)$, que no nosso problema pode ser simplificado para $O(V^2)$. No
+entanto, com o gerador que nos foi dado e com a nossa implementação, o número de
+caminhos de aumento é $O(\sqrt{V})$. Assim sendo, a complexidade que
+esperamos observar experimentalmente é $O(\sqrt{V})\times O(V) =  O(V^{3/2})$.
+
+![](./docs/charts/BFS_chart.png){ height=25% }
+
 
 Para testar experimentalmente a eficiência do algoritmo, foram gerados
-aleatoriamente 24 testes, com a dimensão em píxeis da imagem a variar entre 40
-000 e 810 000.
+105 testes, com a dimensão em píxeis da imagem a variar entre 90 000 e 3 250 000.
 Os testes foram executados nos servidores do sistema Sigma da DSI, correndo num
 computador com processadores Intel(R) Xeon(R) CPU E5-2620 @ 2.00GHz, 8-core, com
 16 GB de RAM.
@@ -164,7 +172,15 @@ ferramenta *Massif*; para medir tempos de execução, foi utilizado o comando
 *time*, somando os tempos de execução em modo utilizador e sistema.
 
 
-![](./docs/chart.png)
+![](./docs/charts/resource_chart.png){ height=25% }
+
+
+Podemos ver que a complexidade temporal observada está relativamente
+próxima, embora ligeiramente acima, do valor esperado. Tal pode ser atribuído a
+imprecisão a medir o tempo ou ao facto de que os testes foram executados num
+servidor com outros utilizadores ativos, ou ainda a efeitos secundários no
+acesso à memória, como *cache misses*. A complexidade espacial está de acordo
+com os valores esperados.
 
 
 ## Referências:
