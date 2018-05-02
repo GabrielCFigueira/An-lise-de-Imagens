@@ -129,13 +129,13 @@ relações de vizinhança, um arco proveniente da *source* e outro arco que tem
 como destino o *target*.
 
 A nossa solução, como é baseada no algoritmo *Edmonds-Karp*, à partida tem
-complexidade temporal (e espacial) $O(VE^2)$. No entanto, como $E < 6V$,
+complexidade temporal $O(VE^2)$. No entanto, como $E < 6V$,
 então podemos afirmar que a complexidade assimptótica deste algoritmo é $V^3$.
 
 Além disso, durante o algoritmo *Edmonds-Karp* o espaço utilizado é $O(V)$, uma
 vez que este algoritmo precisa apenas das mesmas estruturas de memória que uma
-BFS, que tem complexidade $O(V+E) = O(V)$, mais o espaço necessário para guardar os
-fluxos, que é $O(E) = O(V)$ no nosso problema.
+BFS, que tem complexidade temporal (e espacial) $O(V+E) = O(V)$, mais o espaço
+necessário para guardar os fluxos, que é $O(E) = O(V)$ no nosso problema.
 
 Posto isto, as complexidades temporal e espacial da nossa solução são:
 
