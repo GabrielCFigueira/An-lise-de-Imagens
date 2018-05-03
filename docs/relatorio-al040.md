@@ -7,7 +7,7 @@ author:
 papersize: A4
 fontsize: 12pt
 geometry: margin=3cm
-geometry: vmargin=1.8cm
+geometry: vmargin=1.7cm
 link-citations: true
 ---
 
@@ -45,30 +45,28 @@ f_v =
 $$
 
 Além de mostrar o peso mínimo, também é necessário mostrar a classificação
-dos píxeis que realiza o peso mínimo; se houver múltiplas segmentações
+dos píxeis que realiza o peso mínimo; e, se houver múltiplas segmentações
 possíveis, deve ser mostrada a que maximiza o tamanho de $L$.
 
 
 ## Solução
 
-A segmentação de imagens é um problema já muito estudado; e para o resolver,
-uma das técnicas possíveis é utilizando algoritmos de fluxo máximo, como é
-possível ver nos trabalhos de Wu e Leahy [-@wu1993optimal], Boykov e Jolly
+A segmentação de imagens é um problema já muito estudado; e uma das técnicas
+para o resolver é utilizando algoritmos de fluxo máximo, como é
+possível ver nos trabalhos de Wu e Leahy [-@wu1993optimal] e de Boykov e Jolly
 [-@boykov2001interactive], e que é fundamentado no artigo de Picard e Ratliff
 [-@picard1975minimum].
 
-A imagem pode ser vista como um grafo com capacidade, em que os píxeis
+A imagem pode ser vista como um grafo com capacidades, em que os píxeis
 são os vértices e as relações de vizinhança são os arcos (de capacidade
-$f_{pp'}$).
-Além disso, criamos dois vértices "virtuais", i.e., que não são píxeis, que são
-a *source* e o *target*. O peso dos arcos entre a *source* e os píxeis é
-$\ell_p$, e entre os píxeis e o *target* é $c_p$.
+$f_{pp'}$). Além disso, criamos dois vértices "virtuais", i.e., que não
+são píxeis, que são a *source* e o *target*. A capacidade dos arcos entre
+a *source* e os píxeis é $\ell_p$, e entre os píxeis e o *target* é $c_p$.
 
-Visto desta maneira, o problema de encontrar uma segmentação torna-se no
-problema de encontrar uma bipartição no grafo que minimize o peso -- o que
-significa que o problema é, na verdade, encontrar o corte mínimo no grafo,
-calcular a capacidade do corte e mostrar que vértices pertencem a que parte do
-corte. Decidimos usar o algoritmo de *Edmonds-Karp* para resolver este problema.
+Utilizando o trabalho de Picard e Ratliff [-@picard1975minimum],
+o problema original é reduzível a calcular corte mínimo do grafo acima descrito
+e mostrar a sua capacidade e que vértices pertencem a que parte do corte.
+Decidimos usar o algoritmo de *Edmonds-Karp* para resolver este problema.
 
 -----
 
@@ -131,7 +129,7 @@ Resumidamente, a solução consiste em:
 Antes de mais, importa notar que para este problema, temos que o número de
 arestas no grafo, $E$, é na verdade $O(V)$, onde $V$ é o número de
 píxeis no grafo ($V = M\times N$). Tal é visível se tivermos em conta que,
-a *source* tem $V$ arcos de saída, e o *target* tem $V$ arcos de entrada.
+a *source* tem $V$ arcos de saída, e o *target* tem $V$ arcos incidentes.
 Para além disso, no máximo, temos que cada píxel tem 4 arcos, que o ligam aos
 seus vizinhos. Daqui então sai que $E < V + V + 4\times V = O(V)$
 
